@@ -59,13 +59,13 @@ After completing this lab, students should be able to:
 Clone the repository.
 
 ```bash
-git clone https://github.com/<your-username>/kingdom-sqli-lab.git
+git clone https://github.com/sriman-git09/SQL-vuln-lab.git
 ```
 
 Move into the project directory.
 
 ```bash
-cd kingdom-sqli-lab
+cd SQL-vuln-lab
 ```
 
 Create a virtual environment (recommended).
@@ -103,7 +103,7 @@ pip install Flask
 Start the application.
 
 ```bash
-python app.py
+python3 SQL_LAB.py
 ```
 
 The server starts on:
@@ -123,7 +123,7 @@ On the first execution, the application automatically creates the SQLite databas
 ```
 kingdom-sqli-lab
 │
-├── app.py
+├── SQL_LAB.py
 ├── requirements.txt
 ├── README.md
 ├── LICENSE
