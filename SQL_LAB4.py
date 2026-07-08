@@ -188,32 +188,56 @@ HTML = """
         </div>
 
         <div class="content">
-            <!-- INJECTION VECTOR -->
-            <div class="panel">
-                <h3>Staff Directory Search</h3>
-                <form method="GET" action="/search">
-                    <input type="text" name="id" placeholder="Enter Staff ID" value="{{ q_val }}" autocomplete="off">
-                    <button type="submit">QUERY DATABASE</button>
-                </form>
-                <br>
-                <div class="log-window">
-                    {% if waf_error %}
-                        <div class="alert">[!] FIREWALL BLOCKED REQUEST</div>
-                        <div class="alert">Reason: {{ waf_error }}</div>
-                    {% elif rows %}
-                        <div style="color: #666; margin-bottom: 5px;">Results Found:</div>
-                        {% for r in rows %}
-                        <div class="row">
-                            <span>ID: {{ r[0] }}</span>
-                            <span>{{ r[1] }}</span>
-                            <span class="val">{{ r[2] }}</span> <!-- Hash or Base64 shows here -->
-                        </div>
-                        {% endfor %}
-                    {% else %}
-                        <div style="color: #444;">System Ready... Waiting for input.</div>
-                    {% endif %}
-                </div>
+<!-- INJECTION VECTOR -->
+<div class="panel">
+    <h3>Staff Directory Search</h3>
+
+    <form method="GET" action="/search">
+        <input type="text"
+               name="id"
+               placeholder="Enter Staff ID"
+               value="{{ q_val }}"
+               autocomplete="off">
+
+        <button type="submit">QUERY DATABASE</button>
+    </form>
+
+    <br>
+
+    <a href="/hints" style="text-decoration:none;">
+        <button type="button"
+                style="background:#222;color:#fff;border:1px solid #444;">
+            💡 View Hints
+        </button>
+    </a>
+
+    <br><br>
+
+    <div class="log-window">
+        {% if waf_error %}
+            <div class="alert">[!] FIREWALL BLOCKED REQUEST</div>
+            <div class="alert">Reason: {{ waf_error }}</div>
+
+        {% elif rows %}
+            <div style="color: #666; margin-bottom: 5px;">
+                Results Found:
             </div>
+
+            {% for r in rows %}
+            <div class="row">
+                <span>ID: {{ r[0] }}</span>
+                <span>{{ r[1] }}</span>
+                <span class="val">{{ r[2] }}</span>
+            </div>
+            {% endfor %}
+
+        {% else %}
+            <div style="color: #444;">
+                System Ready... Waiting for input.
+            </div>
+        {% endif %}
+    </div>
+</div>
             
             <!-- VERIFICATION MODULE -->
             <div class="panel" style="border-color: #444;">
@@ -280,84 +304,94 @@ def verify():
 # ---------------------------
 # HINT SYSTEM
 # ---------------------------
-
 HINTS = [
-    "Hint 1: There is more than one table in the database.",
-    "Hint 2: One table stores critical assets.",
-    "Hint 3: That table is named 'vault'.",
+    "Hint 1: The Staff ID field is vulnerable to SQL Injection.",
+    "Hint 2: More than one table exists in the database.",
+    "Hint 3: The table containing the flag is named 'vault'.",
     "Hint 4: The encoded asset is stored in the 'data' column.",
-    "Hint 5: Decode the retrieved Base64 string before submitting it."
+    "Hint 5: The original query returns three columns.",
+    "Hint 6: The recovered value is Base64 encoded.",
+    "Hint 7: Decode the Base64 string and submit the plaintext flag."
 ]
 
-@app.route("/hint/<int:n>")
-def hint(n):
-    if 1 <= n <= len(HINTS):
-        return f"""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Challenge Hint</title>
-            <style>
-                body {{
-                    background:#0b0b0b;
-                    color:#00e676;
-                    font-family:Consolas, monospace;
-                    display:flex;
-                    justify-content:center;
-                    align-items:center;
-                    height:100vh;
-                    margin:0;
-                }}
+@app.route("/hints")
+def hints():
+    html = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>AEGIS Challenge Hints</title>
+        <style>
+            body{
+                background:#050505;
+                color:#e0e0e0;
+                font-family:'Segoe UI',sans-serif;
+                margin:0;
+                display:flex;
+                justify-content:center;
+                align-items:center;
+                min-height:100vh;
+            }
 
-                .box {{
-                    width:700px;
-                    background:#111;
-                    border:1px solid #333;
-                    border-radius:8px;
-                    padding:30px;
-                    box-shadow:0 0 25px rgba(0,0,0,.8);
-                }}
+            .container{
+                width:800px;
+                background:#111;
+                border:1px solid #333;
+                border-radius:8px;
+                padding:30px;
+                box-shadow:0 0 30px rgba(0,0,0,.8);
+            }
 
-                h2 {{
-                    color:#00bcd4;
-                }}
+            h1{
+                color:#00bcd4;
+                text-align:center;
+                margin-bottom:25px;
+            }
 
-                p {{
-                    font-size:18px;
-                }}
+            .hint{
+                background:#0b0b0b;
+                border-left:4px solid #00bcd4;
+                padding:15px;
+                margin:12px 0;
+                border-radius:4px;
+            }
 
-                a {{
-                    color:#888;
-                    text-decoration:none;
-                }}
+            a{
+                color:#00bcd4;
+                text-decoration:none;
+            }
 
-                a:hover {{
-                    color:#00bcd4;
-                }}
-            </style>
-        </head>
+            .back{
+                text-align:center;
+                margin-top:25px;
+            }
+        </style>
+    </head>
 
-        <body>
+    <body>
 
-            <div class="box">
-                <h2>AEGIS Challenge Hint</h2>
+        <div class="container">
 
-                <p>{HINTS[n-1]}</p>
+            <h1>Challenge Hints</h1>
 
-                <br>
-
-                <a href="/">← Return to Challenge</a>
-            </div>
-
-        </body>
-        </html>
-        """
-
-    return """
-    <h2>No more hints available.</h2>
-    <a href="/">Return</a>
     """
 
+    for hint in HINTS:
+        html += f'<div class="hint">{hint}</div>'
+
+    html += """
+
+            <div class="back">
+                <a href="/">⬅ Return to Challenge</a>
+            </div>
+
+        </div>
+
+    </body>
+    </html>
+    """
+
+    return html
 if __name__ == '__main__':
     init_db()
     app.run(host='0.0.0.0', port=8087, debug=True)
